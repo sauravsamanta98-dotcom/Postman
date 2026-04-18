@@ -6,7 +6,7 @@ B = input("enter Password:")
 from multiprocessing import context
 
 import playwright
-from playwright.sync_api import Page
+#from playwright.sync_api import Page
 
 url = "https://macktesting.solverminds.net/"
 def run(page: Page):
