@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+
+{% block title %}Settings - Daddy{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card shadow-lg">
+            <div class="card-header bg-info text-white">
+                <h4 class="mb-0"><i class="fas fa-cog"></i> Settings</h4>
+            </div>
+            <div class="card-body p-4">
+                <h5 class="mb-4">Preferences</h5>
+                
+                <form method="POST">
+                    <div class="mb-4">
+                        <label for="currency" class="form-label">
+                            <i class="fas fa-money-bill-wave"></i> Select Currency
+                        </label>
+                        <select class="form-select form-select-lg" id="currency" name="currency" required>
+                            {% for code, label in currencies.items() %}
+                            <option value="{{ code }}" {% if user.currency == code %}selected{% endif %}>
+                                {{ label }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                        <small class="form-text text-muted">
+                            All your expenses will be displayed in this currency
+                        </small>
+                    </div>
+
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle"></i>
+                        <strong>Current Currency:</strong> {{ user.currency }} 
+                        {% if user.currency == 'INR' %}
+                        <span class="badge bg-success">₹</span>
+                        {% elif user.currency == 'USD' %}
+                        <span class="badge bg-success">$</span>
+                        {% endif %}
+                    </div>
+
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="btn btn-info btn-lg">
+                            <i class="fas fa-save"></i> Save Settings
+                        </button>
+                        <a href="{{ url_for('main.index') }}" class="btn btn-secondary">Back to Dashboard</a>
+                    </div>
+                </form>
+
+                <hr class="my-4">
+
+                <h5>Account Information</h5>
+                <div class="row">
+                    <div class="col-md-6">
+                        <p><strong>Username:</strong> {{ user.username }}</p>
+                    </div>
+                    <div class="col-md-6">
+                        <p><strong>Email:</strong> {{ user.email }}</p>
+                    </div>
+                </div>
+                <p><strong>Joined:</strong> {{ user.created_at.strftime('%B %d, %Y') }}</p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
