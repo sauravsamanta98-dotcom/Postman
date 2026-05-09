@@ -34,26 +34,28 @@ def index():
     today = datetime.utcnow().date()
     month_start = today.replace(day=1)
     
-    expenses = Expense.query.filter_by(user_id=user_id)\
+    expenses = Expense.query.filter_by(user_id=user_id, active_status='A')\
         .filter(Expense.date >= month_start)\
         .order_by(Expense.date.desc())\
         .all()
     
     # Calculate statistics
     total_spent = db.session.query(func.sum(Expense.amount))\
-        .filter_by(user_id=user_id)\
+        .filter_by(user_id=user_id, active_status='A')\
         .filter(Expense.date >= month_start)\
         .scalar() or 0
     
     # Category breakdown
     category_stats = db.session.query(
         Category.name,
-        Category.icon,
         func.sum(Expense.amount).label('total'),
-        func.count(Expense.id).label('count')
+        Category.color,
+        Category.icon
     ).join(Expense).filter(
         Expense.user_id == user_id,
-        Expense.date >= month_start
+        Expense.date >= month_start,
+        Expense.active_status == 'A',
+        Category.active_status == 'A'
     ).group_by(Category.id).all()
     
     # Last 7 days trend
@@ -63,7 +65,8 @@ def index():
         func.sum(Expense.amount).label('total')
     ).filter(
         Expense.user_id == user_id,
-        Expense.date >= week_ago
+        Expense.date >= week_ago,
+        Expense.active_status == 'A'
     ).group_by(func.date(Expense.date)).all()
     
     return render_template('dashboard.html',

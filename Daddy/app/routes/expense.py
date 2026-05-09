@@ -15,7 +15,7 @@ def add_expense():
         return redirect(url_for('auth.login'))
     
     user_id = session['user_id']
-    categories = Category.query.filter_by(user_id=user_id).all()
+    categories = Category.query.filter_by(user_id=user_id, active_status='A').all()
     
     if request.method == 'POST':
         description = request.form.get('description')
@@ -76,13 +76,13 @@ def edit_expense(expense_id):
         return redirect(url_for('auth.login'))
     
     user_id = session['user_id']
-    expense = Expense.query.filter_by(id=expense_id, user_id=user_id).first()
+    expense = Expense.query.filter_by(id=expense_id, user_id=user_id, active_status='A').first()
     
     if not expense:
         flash('Expense not found', 'error')
         return redirect(url_for('main.index'))
     
-    categories = Category.query.filter_by(user_id=user_id).all()
+    categories = Category.query.filter_by(user_id=user_id, active_status='A').all()
     
     if request.method == 'POST':
         expense.description = request.form.get('description')
@@ -104,17 +104,19 @@ def edit_expense(expense_id):
 
 @expense_bp.route('/delete/<int:expense_id>')
 def delete_expense(expense_id):
-    """Delete an expense"""
+    """Delete an expense (soft delete)"""
     if 'user_id' not in session:
         return redirect(url_for('auth.login'))
     
     user_id = session['user_id']
-    expense = Expense.query.filter_by(id=expense_id, user_id=user_id).first()
+    expense = Expense.query.filter_by(id=expense_id, user_id=user_id, active_status='A').first()
     
     if expense:
-        db.session.delete(expense)
+        expense.active_status = 'D'  # Mark as deleted
         db.session.commit()
         flash('Expense deleted successfully!', 'success')
+    else:
+        flash('Expense not found', 'error')
     
     return redirect(url_for('main.index'))
 

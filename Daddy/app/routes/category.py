@@ -13,7 +13,7 @@ def list_categories():
         return redirect(url_for('auth.login'))
     
     user_id = session['user_id']
-    categories = Category.query.filter_by(user_id=user_id).all()
+    categories = Category.query.filter_by(user_id=user_id, active_status='A').all()
     
     return render_template('categories.html', categories=categories)
 
@@ -34,7 +34,7 @@ def add_category():
             flash('Category name is required', 'error')
             return redirect(url_for('category.add_category'))
         
-        if Category.query.filter_by(name=name, user_id=user_id).first():
+        if Category.query.filter_by(name=name, user_id=user_id, active_status='A').first():
             flash('Category already exists', 'error')
             return redirect(url_for('category.add_category'))
         
@@ -54,7 +54,7 @@ def edit_category(category_id):
         return redirect(url_for('auth.login'))
     
     user_id = session['user_id']
-    category = Category.query.filter_by(id=category_id, user_id=user_id).first()
+    category = Category.query.filter_by(id=category_id, user_id=user_id, active_status='A').first()
     
     if not category:
         flash('Category not found', 'error')
@@ -73,16 +73,18 @@ def edit_category(category_id):
 
 @category_bp.route('/delete/<int:category_id>')
 def delete_category(category_id):
-    """Delete a category"""
+    """Delete a category (soft delete)"""
     if 'user_id' not in session:
         return redirect(url_for('auth.login'))
     
     user_id = session['user_id']
-    category = Category.query.filter_by(id=category_id, user_id=user_id).first()
+    category = Category.query.filter_by(id=category_id, user_id=user_id, active_status='A').first()
     
     if category:
-        db.session.delete(category)
+        category.active_status = 'D'  # Mark as deleted
         db.session.commit()
         flash('Category deleted successfully!', 'success')
+    else:
+        flash('Category not found', 'error')
     
     return redirect(url_for('category.list_categories'))

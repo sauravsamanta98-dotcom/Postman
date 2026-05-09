@@ -31,7 +31,9 @@ class Category(db.Model):
     icon = db.Column(db.String(20), default='📁')
     color = db.Column(db.String(7), default='#3498db')
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+    active_status = db.Column(db.String(1), default='A')  # 'A' = Active, 'D' = Deleted
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
     
     # Relationships
     expenses = db.relationship('Expense', backref='category', lazy=True, cascade='all, delete-orphan')
@@ -53,6 +55,7 @@ class Expense(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
     notes = db.Column(db.Text, nullable=True)
     receipt_url = db.Column(db.String(500), nullable=True)  # Cloud storage URL
+    active_status = db.Column(db.String(1), default='A')  # 'A' = Active, 'D' = Deleted
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
     
